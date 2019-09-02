@@ -12,12 +12,35 @@ const User = mongoose.model('users');
 // User Login Route
 router.get('/login', (req, res) => {
   res.render('users/login');
+  return res.status(400);
 });
+//User forgot password
+router.get('/forgot', (req, res) => {
+  res.render('users/forgot');
+  
+});
+
+//User forget password POST
+
+
 
 // User Register Route
 router.get('/register', (req, res) => {
   res.render('users/register');
+  return res.status(402);
 });
+
+// User Payment Route
+router.get('/payment', (req, res) => {
+  res.render('users/payment');
+});
+
+// User Payment POST
+router.post('/payment', (req, res, next) => {
+  req.flash('success_msg', 'Payment Successful');
+  res.redirect('/');
+});
+
 //User Update Route
 router.get('/edit/:id', ensureAuthenticated, (req, res) => {
   User.findOne({
@@ -27,9 +50,29 @@ router.get('/edit/:id', ensureAuthenticated, (req, res) => {
     res.render('users/edit', {
       user:user
     });
+    
   });
+  return res.status(403);
 });
 
+// User Privilege get
+router.get('/privilege', (req, res) => {
+  res.render('users/privilege');
+});
+
+// User areusure get
+router.get('/areusure', (req, res) => {
+  res.render('users/areusure');
+});
+
+
+// User privilege POST
+router.post('/privilege', (req, res, next) => {
+  User.findOne({id: req.body.id})
+  .then(user => {
+    user.privilege = req.body.privilege;
+  });
+});
 
 //Update Profile
 router.get('/edit', ensureAuthenticated, (req, res) => {
@@ -60,7 +103,8 @@ router.post('/register', (req, res) => {
   if(errors.length > 0){
     res.render('users/register', {
       errors: errors,
-      name: req.body.name,
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
       email: req.body.email,
       password: req.body.password,
       password2: req.body.password2
@@ -73,11 +117,12 @@ router.post('/register', (req, res) => {
           res.redirect('/users/register');
         } else {
           const newUser = new User({
-            name: req.body.name,
+            firstname: req.body.firstname,
+            lastname: req.body.lastname,
             email: req.body.email,
             password: req.body.password
           });
-          
+
           bcrypt.genSalt(10, (err, salt) => {
             bcrypt.hash(newUser.password, salt, (err, hash) => {
               if(err) throw err;
@@ -98,16 +143,17 @@ router.post('/register', (req, res) => {
   }
 });
 
-//Edit
+//Edit Profile
 router.put('/:id', ensureAuthenticated, (req, res) => {
   User.findOne({
     _id: req.params.id
   })
   .then(user => {
     // new values
-     user.name = req.body.name;
+    user.firstname = req.body.firstname,
+    user.lastname = req.body.lastname,
     user.email = req.body.email;
- 
+
     user.save()
       .then(user => {
         req.flash('success_msg', 'Profile updated');
@@ -116,14 +162,15 @@ router.put('/:id', ensureAuthenticated, (req, res) => {
   });
 });
 
-// Delete Idea
+// Delete Account
 router.delete('/:id', ensureAuthenticated, (req, res) => {
   User.remove({_id: req.params.id})
     .then(() => {
-      req.flash('success_msg', ' removed');
+      req.flash('success_msg', 'Your account has been deactivated');
       res.redirect('/');
     });
 });
+
 
 
 // Logout User

@@ -71,13 +71,26 @@ app.get('/', (req, res) => {
   res.render('index', {
     title: title
   });
+  return res.status(200);
 });
 
 // About Route
 app.get('/about', (req, res) => {
   res.render('about');
+  return res.status(403);
 });
 
+app.get('/delivery', (req, res) => {
+  res.render('delivery');
+});
+
+app.get('/courier', (req, res) => {
+  res.render('courier');
+});
+
+app.get('/deliveryDT', (req, res) => {
+  res.render('deliveryDT');
+});
 
 // Use routes
 app.use('/users', users);
